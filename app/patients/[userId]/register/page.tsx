@@ -1,8 +1,13 @@
-import PatientForm from "@/components/forms/PatientForm";
-import Image from "next/image";
-import Link from "next/link";
 
-export default function Home() {
+import RegisterForm from '@/components/forms/RegisterForm';
+import { users } from '@/lib/appwrite.config';
+import Image from 'next/image';
+import Link from 'next/link';
+import React from 'react'
+
+export default async function register({params:{userId}}:SearchParamProps) {
+    const user = await users.get(userId);
+
   return (
     <div className="flex h-screen max-h-screen ">
       <section className="remove-scrollbar container my-auto">
@@ -14,7 +19,7 @@ export default function Home() {
             alt="patient"
             className="mb-12 h-10 w-fit"
           />
-          <PatientForm />
+          <RegisterForm user={user} />
         
 
         <div className="text-14-regular mt-20 flex justify-between">
@@ -24,17 +29,19 @@ export default function Home() {
           <Link href="/?admin=true" className="text-green-500">
             Admin
           </Link>
-          </div>
+        </div>
         </div>
       </section>
 
       <Image
-        src="/assets/images/onboarding-img.png"
+        src="/assets/images/image1.jpg"
         height={1000}
         width={1000}
         alt="patient"
-        className="side-img max-w-[50%]"
+        className="side-img max-w-[40%]"
       />
     </div>
   );
 }
+
+

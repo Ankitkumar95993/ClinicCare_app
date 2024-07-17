@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { createUser } from "@/lib/actions/patient.action";
 
 
-const PatientForm = () => {
+const RegisterForm = ({user}:{user:User}) => {
   // 1. Define your form.
   const router = useRouter();
 
@@ -48,10 +48,15 @@ const PatientForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12 flex-1">
         <section className="mb-12 space-y-4">
-         <h1 className="header">Hi there 👋</h1>
-         <p className = "text-dark-700" >Schedule your first Appointment.</p>
+         <h1 className="header">Welcome 👋</h1>
+         <p className = "text-dark-700" >Let us know more about your self.</p>
+        </section>
+
+        <section className="mb-12 space-y-6">
+         <div className="mb-9 space-y-1"></div>
+         <h2 className="sub-header">Personal Information</h2>
         </section>
 
         <CustomFormField
@@ -64,7 +69,8 @@ const PatientForm = () => {
          iconAlt="user"
          />
 
-        <CustomFormField
+         <div className="flex flex-col gap-6 xl:flex-row">
+         <CustomFormField
          fieldType = {FormFieldType.INPUT}
          control={form.control}
          name = "email"
@@ -83,6 +89,9 @@ const PatientForm = () => {
          
          />
 
+         </div>
+
+    
         <SubmitButton isLoading={isLoading}> Get Started </SubmitButton>
         
       </form>
@@ -90,4 +99,4 @@ const PatientForm = () => {
   )
 }
 
-export default PatientForm;
+export default RegisterForm;

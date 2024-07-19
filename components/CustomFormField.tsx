@@ -9,15 +9,21 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Input} from "@/components/ui/input";
 import { Control } from "react-hook-form";
 import Image from "next/image";
 import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
+import DatePicker from "react-datepicker";
+import { Textarea } from "./ui/textarea";
+
+import "react-datepicker/dist/react-datepicker.css";
+
+import { Select, SelectContent, SelectTrigger, SelectValue } from "./ui/select";
+import { Checkbox } from "./ui/checkbox";
 
 interface CustomProps {
   control: Control<any>;
-  fieldType: FormFieldType;
   name: string;
   label?: string;
   placeholder?: string;
@@ -27,7 +33,9 @@ interface CustomProps {
   dateFormat?: string;
   showTimeSelect?: boolean;
   children?: React.ReactNode;
-  renderSkeleton?: (field: any) => React.ReactNode;
+  renderSkeleton?: (field:any) => React.ReactNode;
+  fieldType: FormFieldType;
+
 }
 
 export enum FormFieldType {
@@ -41,7 +49,7 @@ export enum FormFieldType {
 }
 
 const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
-  const { iconSrc, fieldType, iconAlt, placeholder } = props;
+  const { iconSrc, fieldType, iconAlt, placeholder,showTimeSelect,dateFormat,renderSkeleton } = props;
 
   switch (fieldType) {
     case FormFieldType.INPUT:
@@ -66,6 +74,21 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
         </div>
       );
 
+      case FormFieldType.TEXTAREA:
+        return (
+          <FormControl>
+          <Textarea
+            placeholder={placeholder}
+            {...field}
+            className = "shad-textArea"
+            disable={props.disabled}
+            />
+          </FormControl>
+
+
+
+        );
+
       case FormFieldType.PHONE_INPUT:
       return (
         <FormControl>
@@ -81,7 +104,68 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
         </FormControl>
       );
 
-    
+      case FormFieldType.DATE_PICKER:
+        return(
+          <div className="flex rounded-md border border-dark-500 bg-dark-400">
+            <Image src="/assets/icons/calendar.svg"
+            height={24}
+            width={24}
+            alt="calender" 
+            className="ml-2"
+            />
+            <FormControl>
+              <DatePicker
+              selected={field.value}
+              placeholderText={props.placeholder}
+              onChange={(date)=>field.onChange(date)}
+              dateFormat={dateFormat ?? 'MM/dd/YYYY'}
+              showTimeSelect={showTimeSelect ?? false}
+              timeInputLabel="Time:"
+              wrapperClassName="date-picker"
+              />
+
+            </FormControl>
+
+          </div>
+         
+        )
+
+        case FormFieldType.SKELETON:
+          return renderSkeleton ? renderSkeleton(field):null
+
+        case FormFieldType.SELECT:
+           return (
+            <FormControl>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                 <FormControl>
+                  <SelectTrigger  className="shad-select-trigger">
+                  <SelectValue placeholder={placeholder}/>
+                  </SelectTrigger>
+                 </FormControl>
+                 <SelectContent className="shad-select-content">
+                  {props.children}
+                 </SelectContent>
+              </Select>
+            </FormControl>
+           )
+
+           case FormFieldType.CHECKBOX:
+            return (
+              <FormControl>
+                <div className="flex items-center gap-4">
+                  <Checkbox
+                    id={props.name}
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                  <label htmlFor={props.name} className="checkbox-label">
+                    {props.label}
+                  </label>
+                </div>
+              </FormControl>
+            );
+
+      
     default:
       break;
   }

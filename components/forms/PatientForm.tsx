@@ -9,7 +9,7 @@ import {Form} from '@/components/ui/form';
 import CustomFormField, { FormFieldType } from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
 import { useState } from "react";
-import { formSchema } from "@/lib/validation";
+import {  UserFormValidation } from "@/lib/validation";
 import { useRouter } from "next/navigation";
 import { createUser } from "@/lib/actions/patient.action";
 
@@ -21,8 +21,8 @@ const PatientForm = () => {
   const [isLoading,setIsLoading] = useState(false);
 
   
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof UserFormValidation>>({
+    resolver: zodResolver(UserFormValidation),
     defaultValues: {
       name: "",
       email:"",
@@ -31,7 +31,7 @@ const PatientForm = () => {
   })
  
   // 2. Define a submit handler.
-  const onSubmit = async({name,email,phone}: z.infer<typeof formSchema>) => {
+  const onSubmit = async({name,email,phone}: z.infer<typeof UserFormValidation>) => {
 
     setIsLoading(true);
 

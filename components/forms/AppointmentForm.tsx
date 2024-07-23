@@ -9,12 +9,13 @@ import { Form } from "@/components/ui/form";
 import CustomFormField, { FormFieldType } from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
 import { useState } from "react";
-import { UserFormValidation } from "@/lib/validation";
+import { getAppointmentSchema, UserFormValidation } from "@/lib/validation";
 import { useRouter } from "next/navigation";
 import { createUser } from "@/lib/actions/patient.action";
 import { Doctors } from "@/constants";
 import { SelectItem } from "../ui/select";
 import Image from "next/image";
+import { ID } from "node-appwrite";
 
 const AppointmentForm = ({
   userId,
@@ -23,39 +24,86 @@ const AppointmentForm = ({
 }: {
   userId: string;
   patientId: string;
-  type: "create" | "cancel";
+  type: "create" | "cancel" | "schedule";
 }) => {
   // 1. Define your form.
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<z.infer<typeof UserFormValidation>>({
-    resolver: zodResolver(UserFormValidation),
+  const AppointmentFormValidation = getAppointmentSchema(type);
+
+  const form = useForm<z.infer<typeof AppointmentFormValidation>>({
+    resolver: zodResolver(AppointmentFormValidation),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
+      primaryPhysician= "",
+      schedule= new Date(),
+      reason= "",
+      note= "",
+      cancellationReason= "",
     },
   });
 
   // 2. Define a submit handler.
-  const onSubmit = async ({
-    name,
-    email,
-    phone,
-  }: z.infer<typeof UserFormValidation>) => {
+  const onSubmit = async (values: z.infer<typeof AppointmentFormValidation>) => {
     setIsLoading(true);
 
+    let status;
+    switch(type){
+       case 'schedule':
+          status = 'scheduled';
+          break;
+       case 'cancel':
+           status = 'cancelled';
+           break;
+        default:
+            status = 'pending';
+            break;
+    }
+
+
     try {
-      const userData = { name, email, phone };
-      const user = await createUser(userData);
-      if (user) router.push(`/patients/${user.$id}/register`);
+      if(type === 'create' && patientId){
+        const appointmentData = {
+        userId,
+        patient:patientId,
+        primaryPhysician:values.primaryPhysician,
+        schedule: new Date(values.schedule),
+        reason:values.reason,
+        note:values.note,
+        status:status as Status
+        }
+      }
+    //   const appointment = await CreateAppointmentSchema(appointmentData){
+       
+      }
+
     } catch (error) {
       console.log(error);
     }
     setIsLoading(false);
   };
+
+
+  let buttonLabel;
+
+  switch (type) {
+    case 'cancel':
+        buttonLabel='Cancel Appointment';
+        break;
+    
+    case 'create':
+        buttonLabel="Create Appointment";
+        break;
+
+    case 'schedule':
+        buttonLabel="Schedule Appointment";
+        break;
+
+    default:
+        break;
+  }
+
 
   return (
     <Form {...form}>
@@ -98,7 +146,7 @@ const AppointmentForm = ({
             <CustomFormField
               fieldType={FormFieldType.TEXTAREA}
               control={form.control}
-              name="allergies"
+              name="reason"
               label="Reason for appointment"
               placeholder="ex : Annual monthly check-up"
             />
@@ -106,7 +154,7 @@ const AppointmentForm = ({
             <CustomFormField
               fieldType={FormFieldType.TEXTAREA}
               control={form.control}
-              name="currentMedication"
+              name="note"
               label="Additional Comments/notes"
               placeholder="ex: Prefer afternoon appointment,if possible"
             />
@@ -137,7 +185,7 @@ const AppointmentForm = ({
             />
             )
         }
-        <SubmitButton isLoading={isLoading} className={`${type==="cancel" ? "shad-danger-btn" : 'shad-primary-btn'}`}> Get Started </SubmitButton>
+        <SubmitButton isLoading={isLoading} className={`${type==="cancel" ? "shad-danger-btn" : 'shad-primary-btn'} w-full`}> {buttonLabel}</SubmitButton>
       </form>
     </Form>
   );

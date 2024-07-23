@@ -79,6 +79,7 @@ export const PatientFormValidation = z.object({
 export const CreateAppointmentSchema = z.object({
   primaryPhysician: z.string().min(2, "Select at least one doctor"),
   schedule: z.coerce.date(),
+  // schedule: z.date().refine((date) => !isNaN(date.getTime()), "Schedule is required"),
   reason: z
     .string()
     .min(2, "Reason must be at least 2 characters")

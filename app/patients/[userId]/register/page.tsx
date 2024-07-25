@@ -4,9 +4,12 @@ import { users } from '@/lib/appwrite.config';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react'
+import * as Sentry from '@sentry/nextjs';
 
 export default async function register({params:{userId}}:SearchParamProps) {
     const user = await users.get(userId);
+
+    Sentry.metrics.set("user_view_register",user.name);
 
   return (
     <div className="flex h-screen max-h-screen ">

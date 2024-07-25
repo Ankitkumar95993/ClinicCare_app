@@ -103,7 +103,7 @@ export const getRecentAppointmentList = async () => {
 
  //SEND SMS NOTIFICATION
 
-export const sendSMSNotification = async (userId: string, content: string) => {
+ export const sendSMSNotification = async (userId: string, content: string) => {
   try {
     // https://appwrite.io/docs/references/1.5.x/server-nodejs/messaging#createSms
     const message = await messaging.createSms(
@@ -111,7 +111,7 @@ export const sendSMSNotification = async (userId: string, content: string) => {
       content,
       [],
       [userId]
-    );DATABASE_ID
+    );
     return parseStringify(message);
   } catch (error) {
     console.error("An error occurred while sending sms:", error);
@@ -134,12 +134,16 @@ export const updateAppointment = async ({
       appointment
     );
 
-    if (!updatedAppointment) throw Error;
+    if (!updatedAppointment) {
+      throw new Error('Appointment not found');
+    }
 
-    const smsMessage = `Greetings from CarePulse. ${type === "schedule" ? `Your appointment is confirmed for ${formatDateTime(appointment.schedule!, timeZone).dateTime} with Dr. ${appointment.primaryPhysician}` : `We regret to inform that your appointment for ${formatDateTime(appointment.schedule!, timeZone).dateTime} is cancelled. Reason:  ${appointment.cancellationReason}`}.`;
+    const smsMessage = `Greetings from CarePulse. ${type === "schedule" ? `Your appointment is confirmed for ${formatDateTime(appointment.schedule!).dateTime} with Dr. ${appointment.primaryPhysician}` : `We regret to inform that your appointment for ${formatDateTime(appointment.schedule!).dateTime} is cancelled. Reason:  ${appointment.cancellationReason}`}.`;
+
     await sendSMSNotification(userId, smsMessage);
 
     revalidatePath("/admin");
+    
     return parseStringify(updatedAppointment);
 
   } catch (error) {

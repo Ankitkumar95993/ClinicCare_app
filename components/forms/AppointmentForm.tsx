@@ -10,7 +10,8 @@ import { z } from "zod";
 import { SelectItem } from "@/components/ui/select";
 import { Doctors } from "@/constants";
 import {
-  createAppointment
+  createAppointment,
+  updateAppointment,
 } from "@/lib/actions/appointment.action";
 import { getAppointmentSchema } from "@/lib/validation";
 import { Appointment } from "@/types/appwrite.types";
@@ -21,18 +22,18 @@ import CustomFormField, { FormFieldType } from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
 import { Form } from "../ui/form";
 
- const AppointmentForm = ({
+export const AppointmentForm = ({
   userId,
   patientId,
   type = "create",
   appointment,
-//   setOpen,
+  setOpen,
 }: {
   userId: string;
   patientId: string;
   type: "create" | "schedule" | "cancel";
   appointment?: Appointment;
-//   setOpen?: Dispatch<SetStateAction<boolean>>;
+  setOpen?: Dispatch<SetStateAction<boolean>>;
 }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -85,28 +86,29 @@ import { Form } from "../ui/form";
 
         if (newAppointment) {
           form.reset();
-          router.push(`/patients/${userId}/new-appointment/success?appointmentId=${newAppointment.$id}`);
-    
+          router.push(
+            `/patients/${userId}/new-appointment/success?appointmentId=${newAppointment.$id}`
+          );
         }
-        //  else {
-    //     const appointmentToUpdate = {
-    //       userId,
-    //       appointmentId: appointment?.$id!,
-    //       appointment: {
-    //         primaryPhysician: values.primaryPhysician,
-    //         schedule: new Date(values.schedule),
-    //         status: status as Status,
-    //         cancellationReason: values.cancellationReason,
-    //       },
-    //       type,
-    //     };
+      } else {
+        const appointmentToUpdate = {
+           userId,
+           appointmentId: appointment?.$id!,
+           appointment: {
+            primaryPhysician: values.primaryPhysician,
+            schedule: new Date(values.schedule),
+            status: status as Status,
+            cancellationReason: values.cancellationReason,
+          },
+          type,
+        };
 
-    //     const updatedAppointment = await updateAppointment(appointmentToUpdate);
+        const updatedAppointment = await updateAppointment(appointmentToUpdate);
 
-    //     if (updatedAppointment) {
-    //       setOpen && setOpen(false);
-    //       form.reset();
-    //     }
+        if (updatedAppointment) {
+          setOpen && setOpen(false);
+          form.reset();
+        }
       }
     } catch (error) {
       console.log(error);
@@ -216,5 +218,3 @@ import { Form } from "../ui/form";
     </Form>
   );
 };
-
-export default AppointmentForm 

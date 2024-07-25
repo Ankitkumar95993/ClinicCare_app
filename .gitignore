@@ -35,8 +35,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# assets
-/public
+
 
 # Sentry Config File
 .env.sentry-build-plugin
